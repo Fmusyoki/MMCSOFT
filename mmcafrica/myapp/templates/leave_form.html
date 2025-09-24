@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block content %}
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+
+  <!-- 🌟 Leave Request Form -->
+  <div class="card shadow-lg border-0 rounded-3 mb-5">
+    <div class="card-header bg-primary text-white rounded-top">
+      <h4 class="mb-0"><i class="bi bi-calendar-check me-2"></i> Leave Request Form</h4>
+    </div>
+    <div class="card-body p-4">
+      <form id="leaveForm" method="POST">
+        {% csrf_token %}
+
+        <div class="row g-3">
+          <!-- Employee Name -->
+          <div class="col-md-6">
+            <label for="employee_name" class="form-label fw-semibold">Employee Name</label>
+            <input type="text" class="form-control" id="employee_name" name="employee_name" required placeholder="Enter your full name">
+          </div>
+
+          <!-- Department -->
+          <div class="col-md-6">
+            <label for="department" class="form-label fw-semibold">Department</label>
+            <input type="text" class="form-control" id="department" name="department" required placeholder="e.g. Finance, HR, IT">
+          </div>
+
+          <!-- Leave Type -->
+          <div class="col-md-6">
+            <label for="leave_type" class="form-label fw-semibold">Leave Type</label>
+            <select class="form-select" id="leave_type" name="leave_type" required>
+              <option value="">-- Select Leave Type --</option>
+              <option value="annual">Annual Leave</option>
+              <option value="sick">Sick Leave</option>
+              <option value="maternity">Maternity Leave</option>
+              <option value="paternity">Paternity Leave</option>
+              <option value="unpaid">Unpaid Leave</option>
+            </select>
+          </div>
+
+          <!-- Start Date -->
+          <div class="col-md-3">
+            <label for="start_date" class="form-label fw-semibold">Start Date</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" required>
+          </div>
+
+          <!-- End Date -->
+          <div class="col-md-3">
+            <label for="end_date" class="form-label fw-semibold">End Date</label>
+            <input type="date" class="form-control" id="end_date" name="end_date" required>
+          </div>
+
+          <!-- Reason -->
+          <div class="col-12">
+            <label for="reason" class="form-label fw-semibold">Reason for Leave</label>
+            <textarea class="form-control" id="reason" name="reason" rows="3" required placeholder="Provide a brief explanation"></textarea>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-success px-4">
+            <i class="bi bi-send-check me-1"></i> Submit Request
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 🌟 Leave Requests List -->
+  <div class="card shadow-lg border-0 rounded-3">
+    <div class="card-header bg-light d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <h4 class="mb-2 mb-md-0 text-primary">
+        <i class="bi bi-list-task me-2"></i> Leave Requests
+      </h4>
+      <input type="text" id="leaveSearch" 
+             class="form-control w-100 w-md-50 fw-bold placeholder-bold" 
+             placeholder="🔍 SEARCH REQUESTS...">
+    </div>
+    <div class="card-body p-4">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="leaveTable">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Employee Name</th>
+              <th>Department</th>
+              <th>Leave Type</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for leave in leaves %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><span class="fw-bold text-primary">{{ leave.employee_name }}</span></td>
+              <td>{{ leave.department }}</td>
+              <td>{{ leave.leave_type|title }}</td>
+              <td>{{ leave.start_date }}</td>
+              <td>{{ leave.end_date }}</td>
+              <td>{{ leave.reason }}</td>
+              <td>
+                <span class="badge {% if leave.status == 'approved' %} bg-success {% elif leave.status == 'pending' %} bg-warning text-dark {% else %} bg-danger {% endif %}">
+                  {{ leave.status|title }}
+                </span>
+              </td>
+              <td class="text-center">
+                <a href="#" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center text-muted">No leave requests found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔹 JS: Search filter -->
+<script>
+document.getElementById("leaveSearch").addEventListener("keyup", function() {
+  const query = this.value.toLowerCase();
+  const rows = document.querySelectorAll("#leaveTable tbody tr");
+
+  rows.forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(query) ? "" : "none";
+  });
+});
+</script>
+
+<!-- 🔹 Styling -->
+<style>
+.placeholder-bold::placeholder {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6c757d;
+  letter-spacing: 0.5px;
+}
+.card {
+  border-radius: 12px;
+}
+.table thead th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+.badge {
+  font-size: 0.85rem;
+  padding: 0.5em 0.75em;
+  border-radius: 8px;
+}
+</style>
+{% endblock %}
+
+
+
+{% endblock %}

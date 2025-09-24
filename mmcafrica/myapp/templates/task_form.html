@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<body class="bg-light">
+  <div class="container py-5">
+    <!-- Task Form -->
+    <div class="mb-5">
+      <h2 class="mb-4 text-primary">Staff Workplans</h2>
+      <form method="POST" class="bg-white p-4 shadow-sm rounded">
+        {% csrf_token %}
+
+        <!-- Title -->
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input type="text" id="title" name="title" class="form-control" placeholder="Enter task title" required>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea id="description" name="description" class="form-control" rows="3" placeholder="Enter task details" required></textarea>
+        </div>
+
+        <!-- Due Date -->
+        <div class="mb-3">
+          <label for="due_date" class="form-label">Due Date</label>
+          <input type="date" id="due_date" name="due_date" class="form-control" required>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-success btn-lg">Create Task</button>
+      </form>
+    </div>
+
+    <!-- Task List -->
+    <div>
+      <h2 class="mb-4 text-dark">Workplans</h2>
+      <div class="table-responsive bg-white p-3 shadow-sm rounded">
+        <table class="table table-hover table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Title</th>
+              <th scope="col">Description</th>
+              <th scope="col">Due Date</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ task.title }}</td>
+              <td>{{ task.description }}</td>
+              <td>{{ task.due_date }}</td>
+              <td>
+                <a href="{% url 'edit_task' task.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{% url 'delete_task' task.id %}" class="btn btn-sm btn-danger">Delete</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">No tasks created yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.
+
+
+{% endblock %}

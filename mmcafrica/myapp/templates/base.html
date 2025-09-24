@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMCAFRICA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    /* Sidebar */
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #212529;
+      color: #fff;
+      padding-top: 20px;
+      transition: all 0.3s ease;
+      overflow-y: auto;
+      z-index: 1050;
+    }
+    .sidebar.collapsed {
+      width: 0;
+      padding: 0;
+    }
+    .sidebar .nav-link {
+      color: #adb5bd;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar .nav-link:hover {
+      background-color: #0a4275;
+      color: #fff;
+    }
+
+    /* Caret rotation */
+    .nav-link .caret {
+      margin-left: auto;
+      transition: transform 0.3s;
+    }
+    .nav-link[aria-expanded="true"] .caret {
+      transform: rotate(180deg);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+    .main-content.expanded {
+      margin-left: 0;
+    }
+
+    /* Toggle Button */
+    .sidebar-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1100;
+      background-color: #0a4275;
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .sidebar-toggle:hover {
+      background-color: #08325a;
+    }
+
+    /* Overlay for mobile */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1040;
+      display: none;
+    }
+    .overlay.active {
+      display: block;
+    }
+
+    /* Responsive Behavior */
+    @media (max-width: 991px) {
+      .sidebar {
+        left: -250px;
+      }
+      .sidebar.active {
+        left: 0;
+      }
+      .main-content {
+        margin-left: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toggle Button -->
+  <button class="sidebar-toggle" id="sidebarToggle"><i class="bi bi-list"></i></button>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <a class="navbar-brand d-flex align-items-center justify-content-center mb-4" href="/">
+      <img src="{% static 'images/MMCL_Logo.png' %}" alt="MMC Africa Logo" height="40">
+    </a>
+    <h4 class="text-center fw-bold text-uppercase mb-4">MMCAFRICA</h4>
+    <ul class="nav flex-column" id="sidebarMenu">
+
+      <!-- Home -->
+      <li class="nav-item">
+        <a class="nav-link" href="/"><i class="bi bi-house"></i> Home</a>
+      </li>
+
+      <!-- Tenders Dropdown -->
+      <li class="nav-item">
+        <a class="nav-link d-flex collapsed" 
+           data-bs-toggle="collapse" href="#tendersMenu" role="button" 
+           aria-expanded="false" aria-controls="tendersMenu">
+          <i class="bi bi-folder"></i> Tenders <i class="bi bi-caret-down-fill caret"></i>
+        </a>
+        <div class="collapse ps-3" id="tendersMenu" data-bs-parent="#sidebarMenu">
+          <a class="nav-link small" href="/tender/"><i class="bi bi-file-earmark-text"></i> View Tenders</a>
+        </div>
+      </li>
+
+      <!-- HR Dropdown -->
+      <li class="nav-item">
+        <a class="nav-link d-flex collapsed" 
+           data-bs-toggle="collapse" href="#hrMenu" role="button" 
+           aria-expanded="false" aria-controls="hrMenu">
+          <i class="bi bi-person-workspace"></i> HR <i class="bi bi-caret-down-fill caret"></i>
+        </a>
+        <div class="collapse ps-3" id="hrMenu" data-bs-parent="#sidebarMenu">
+          <a class="nav-link small" href="/hr/leaves/"><i class="bi bi-calendar-check"></i> Leave Requests</a>
+          <a class="nav-link small" href="/create/"><i class="bi bi-journal-text"></i> Work Plans</a>
+          <a class="nav-link small" href="/hr/staff/"><i class="bi bi-people"></i> Staff Records</a>
+        </div>
+      </li>
+
+      <!-- Accounts Dropdown -->
+      <li class="nav-item">
+        <a class="nav-link d-flex collapsed" 
+           data-bs-toggle="collapse" href="#accounts" role="button" 
+           aria-expanded="false" aria-controls="accounts">
+          <i class="bi bi-cash-coin"></i> Accounts <i class="bi bi-caret-down-fill caret"></i>
+        </a>
+        <div class="collapse ps-3" id="accounts" data-bs-parent="#sidebarMenu">
+          <a class="nav-link small" href="/client/"><i class="bi bi-person-lines-fill"></i> Clients</a>
+          <a class="nav-link small" href="/invoices/"><i class="bi bi-receipt"></i> Invoices</a>
+          <a class="nav-link small" href="/payments/"><i class="bi bi-credit-card"></i> Payments</a>
+        </div>
+      </li>
+
+      <!-- Auth Links -->
+      {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link text-danger fw-semibold" href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a>
+        </li>
+      {% else %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="bi bi-key"></i> Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="/insertuser/"><i class="bi bi-person-plus"></i> Signup</a></li>
+      {% endif %}
+    </ul>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("mainContent");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    const overlay = document.getElementById("overlay");
+
+    // Toggle sidebar
+    sidebarToggle.addEventListener("click", () => {
+      if (window.innerWidth <= 991) {
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      } else {
+        sidebar.classList.toggle("collapsed");
+        mainContent.classList.toggle("expanded");
+      }
+    });
+
+    // Close sidebar when clicking overlay (mobile only)
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+
+    // Ensure caret icons update properly
+    document.querySelectorAll('.collapse').forEach(collapseEl => {
+      collapseEl.addEventListener('shown.bs.collapse', e => {
+        e.target.previousElementSibling.setAttribute('aria-expanded', 'true');
+      });
+      collapseEl.addEventListener('hidden.bs.collapse', e => {
+        e.target.previousElementSibling.setAttribute('aria-expanded', 'false');
+      });
+    });
+  </script>
+</body>
+</html>

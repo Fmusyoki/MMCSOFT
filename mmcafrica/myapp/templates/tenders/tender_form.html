@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+
+  <!-- 🌟 Tender Form -->
+  <div class="card shadow-lg border-0 rounded-3 mb-5">
+    <div class="card-header bg-primary text-white rounded-top">
+      <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i> Tender Updates</h4>
+    </div>
+    <div class="card-body p-4">
+      <form id="tenderForm" method="POST">
+        {% csrf_token %}
+
+        <div class="row g-3">
+          <!-- Tender Name -->
+          <div class="col-md-6">
+            <label for="tender_name" class="form-label fw-semibold">Name of Tender</label>
+            <input type="text" class="form-control" id="tender_name" name="tender_name" required>
+          </div>
+
+          <!-- Reference Number -->
+          <div class="col-md-6">
+            <label for="ref_no" class="form-label fw-semibold">Reference No.</label>
+            <input type="text" class="form-control" id="ref_no" name="ref_no" required>
+          </div>
+
+          <!-- Issue Date -->
+          <div class="col-md-6">
+            <label for="issue_date" class="form-label fw-semibold">Issue Date</label>
+            <input type="date" class="form-control" id="issue_date" name="issue_date" required>
+          </div>
+
+          <!-- Submission Date -->
+          <div class="col-md-6">
+            <label for="submission_date" class="form-label fw-semibold">Submission Date</label>
+            <input type="date" class="form-control" id="submission_date" name="submission_date" required>
+          </div>
+
+          <!-- Assigned To -->
+          <div class="col-md-6">
+            <label for="assigned_to" class="form-label fw-semibold">Assigned To</label>
+            <input type="text" class="form-control" id="assigned_to" name="assigned_to" required>
+          </div>
+
+          <!-- Status -->
+          <div class="col-md-6">
+            <label for="status" class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="status" name="status" required>
+              <option value="">-- Select Status --</option>
+              <option value="submitted">Submitted</option>
+              <option value="ongoing">Ongoing</option>
+            </select>
+          </div>
+
+          <!-- Comments -->
+          <div class="col-12">
+            <label for="comments" class="form-label fw-semibold">Comments</label>
+            <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-success px-4">
+            <i class="bi bi-check-circle me-1"></i> Update Tender
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 🌟 Tender List -->
+<div class="d-flex flex-wrap justify-content-between mb-3 gap-2">
+  <!-- 🔍 Search Bar -->
+  <input type="text" id="searchInput" class="form-control w-50" placeholder="🔍 Search tenders...">
+
+  <!-- 📊 Status Filter -->
+  <select id="statusFilter" class="form-select w-auto">
+    <option value="">-- Filter by Status --</option>
+    <option value="submitted">Submitted</option>
+    <option value="ongoing">Ongoing</option>
+  </select>
+</div>
+
+   <!-- DONWLOAD-->
+<div class="d-flex justify-content-end mb-3 gap-2">
+  <a href="{% url 'tender_export_excel' %}" class="btn btn-success btn-sm">
+    <i class="bi bi-file-earmark-excel"></i> Download Tender Updates
+  </a>
+</div>
+  <div class="card shadow-lg border-0 rounded-3">
+    <div class="card-header bg-light">
+      <h4 class="mb-0 text-primary"><i class="bi bi-list-task me-2"></i> Tender List</h4>
+    </div>
+    <div class="card-body p-4">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>Tender Name</th>
+              <th>Ref No.</th>
+              <th>Issue Date</th>
+              <th>Submission Date</th>
+              <th>Assigned To</th>
+              <th>Status</th>
+              <th>Comments</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tender in tenders %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <!-- 🌟 Make Tender Name stand out -->
+                <span class="fw-bold text-primary">{{ tender.tender_name }}</span>
+              </td>
+              <td>{{ tender.ref_no }}</td>
+              <td>{{ tender.issue_date }}</td>
+              <td>{{ tender.submission_date }}</td>
+              <td>{{ tender.assigned_to }}</td>
+              <td>
+                <span class="badge {% if tender.status == 'submitted' %} bg-success {% else %} bg-warning text-dark {% endif %}">
+                  {{ tender.status }}
+                </span>
+              </td>
+              <td>{{ tender.comments }}</td>
+              <td class="text-center">
+                <a href="#" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center text-muted">No tenders found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 🌟 Response Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="responseModalLabel">Submission Status</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="responseMessage">
+        <!-- Response Message -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById("tenderForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch(form.action || window.location.href, {
+      method: "POST",
+      body: formData,
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    });
+
+    const data = await response.json();
+    const responseModal = new bootstrap.Modal(document.getElementById("responseModal"));
+    const responseMessage = document.getElementById("responseMessage");
+
+    if (data.success) {
+      responseMessage.innerHTML = `<div class="alert alert-success mb-0">✅ Tender updated successfully!</div>`;
+      form.reset();
+
+      // ✅ Update tender list instantly
+      const tableBody = document.querySelector("table tbody");
+
+      // Remove "No tenders found" row if it exists
+      const emptyRow = tableBody.querySelector("tr td[colspan]");
+      if (emptyRow) emptyRow.parentNode.remove();
+
+      // Create new row
+      const newRow = document.createElement("tr");
+      newRow.innerHTML = `
+        <td>${tableBody.children.length + 1}</td>
+        <td><span class="fw-bold text-primary">${data.tender_name}</span></td>
+        <td>${data.ref_no}</td>
+        <td>${data.issue_date}</td>
+        <td>${data.submission_date}</td>
+        <td>${data.assigned_to || "-"}</td>
+        <td>
+          <span class="badge ${data.status === "submitted" ? "bg-success" : "bg-warning text-dark"}">
+            ${data.status}
+          </span>
+        </td>
+        <td>${data.comments || ""}</td>
+        <td class="text-center">
+          <a href="#" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+          <a href="#" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+        </td>
+      `;
+        tableBody.insertBefore(newRow, tableBody.firstChild);
+
+    } else {
+      responseMessage.innerHTML = `<div class="alert alert-danger mb-0">❌ ${data.error || "Update failed."}</div>`;
+    }
+
+    responseModal.show();
+  } catch (error) {
+    document.getElementById("responseMessage").innerHTML =
+      `<div class="alert alert-warning mb-0">⚠️ Error: ${error.message}</div>`;
+    new bootstrap.Modal(document.getElementById("responseModal")).show();
+  }
+});
+function filterTable() {
+  let search = document.getElementById("searchInput").value.toLowerCase();
+  let status = document.getElementById("statusFilter").value.toLowerCase();
+  let rows = document.querySelectorAll("table tbody tr");
+
+  rows.forEach(row => {
+    let rowText = row.innerText.toLowerCase();
+    let statusText = row.querySelector("td:nth-child(7)")?.innerText.toLowerCase() || "";
+
+    let matchesSearch = rowText.includes(search);
+    let matchesStatus = status === "" || statusText === status;
+
+    row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
+  });
+}
+
+document.getElementById("searchInput").addEventListener("keyup", filterTable);
+document.getElementById("statusFilter").addEventListener("change", filterTable);
+</script>
+
+
+<style>
+/* Modern Styling Enhancements */
+.card {
+  border-radius: 12px;
+}
+
+.table thead th {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.table tbody td {
+  vertical-align: middle;
+}
+
+.badge {
+  font-size: 0.85rem;
+  padding: 0.5em 0.75em;
+  border-radius: 8px;
+}
+</style>
+{% endblock %}

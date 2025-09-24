@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Dashboard</h2>
+{% if user.is_superuser %}
+<a href="{% url 'add_task' %}" class="btn btn-primary">Add Task</a>
+{% endif %}
+<a href="{% url 'export_tasks' %}" class="btn btn-success">Export Approved</a>
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Employee</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Status</th>
+            <th>Approved</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+        <tr>
+            <td>{{ task.title }}</td>
+            <td>{{ task.employee.name }}</td>
+            <td>{{ task.start_date }}</td>
+            <td>{{ task.end_date }}</td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.approved }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="6">No tasks</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
